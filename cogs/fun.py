@@ -17,33 +17,50 @@ class Fun(commands.Cog, description="Some fun commands - who doesn't want fun?")
         self.client: commands.Bot = client
         self.emoji = "<:fun:907549655934586900>"
 
-    @commands.command(
-        aliases=["dtogether"],
-        help="Play a Discord Together game in a voice channel",
-    )
-    @commands.guild_only()
-    @commands.bot_has_guild_permissions(create_instant_invite=True)
-    @commands.cooldown(1, 5, commands.BucketType.guild)
-    async def discordtogether(self, ctx, option):
+    @commands.command(help="DPlay a Discord Together game in a Voice Channel", aliases=['youtube'])
+    @commands.cooldown(2, 10, commands.BucketType.user)
+    async def youtubetogether(self, ctx):
         try:
-            author_vc = ctx.author.voice.channel.id
-            try:
-                link = await self.client.dt.create_link(
-                    author_vc, option.lower(), max_age=86400
-                )
-            except:
-                return await ctx.send(
-                    "❌ That's not a valid/supported Discord Together game, choose from these:\n"
-                    + f"`{', '.join(self.client.dt.default_choices)}`"
-                )
+            link = await self.togetherControl.create_link(ctx.author.voice.channel.id, 'youtube')
+        except:
+            return await ctx.send("❌ Error! You are not in a Voice Channel, please join one first.")
 
-            await ctx.send(
-                f"Click the **link itself** to start the activity. Your friends can then click the play button to join.\n\n(Expires in 24 hours)\n"
-                + str(link)
-            )
+        embed=discord.Embed(
+            title="Youtube Together", 
+            description=f"[Click here]({link})", 
+            color=16776960
+        )
+        await ctx.send(embed=embed)
 
-        except AttributeError:
-            await ctx.send("❌ You need to be in a voice channel to use this command.")
+    @commands.command(help="Play a Discord Together game in a Voice Channel", aliases=['poker'])
+    @commands.cooldown(2, 10, commands.BucketType.user)
+    async def pokertogether(self, ctx):
+        try:
+            link = await self.togetherControl.create_link(ctx.author.voice.channel.id, 'poker')
+        except:
+            return await ctx.send("❌ Error! You are not in a Voice Channel, please join one first.")
+
+        embed=discord.Embed(
+            title="Poker Together", 
+            description=f"[Click here]({link})", 
+            color=16776960
+        )
+        await ctx.send(embed=embed)
+
+    @commands.command(help="Play a Discord Together game in a Voice Channel", aliases=['chess'])
+    @commands.cooldown(2, 10, commands.BucketType.user)
+    async def chesstogether(self, ctx):
+        try:
+            link = await self.togetherControl.create_link(ctx.author.voice.channel.id, 'chess')
+        except:
+            return await ctx.send("❌ Error! You are not in a Voice Channel, please join one first.")
+
+        embed=discord.Embed(
+            title="Chess Together", 
+            description=f"[Click here]({link})", 
+            color=16776960
+        )
+        await ctx.send(embed=embed)
 
     @cog_ext.cog_slash(
         name="discord-together",
@@ -393,6 +410,7 @@ class Fun(commands.Cog, description="Some fun commands - who doesn't want fun?")
     )
     @commands.cooldown(1, 3, commands.BucketType.user)
     async def eightball(self, ctx, *, question: str):
+        icon_url = 'https://i.imgur.com/XhNqADi.png'
         # responses from wikipedia
         responses = [
             # Affirmative
@@ -419,18 +437,12 @@ class Fun(commands.Cog, description="Some fun commands - who doesn't want fun?")
             "Outlook not so good.",
             "Very doubtful.",
         ]
-        random_response = random.choice(responses)
+        fortune = random.choice(responses)
 
-        message = await ctx.send(
-            f":8ball: *The magic 8-ball says...*",
-            allowed_mentions=discord.AllowedMentions(users=False),
-        )
-        await sleep(2)
-        # Edit message and add response after two seconds
-        await message.edit(
-            content=f":8ball: *The magic 8-ball says...*\n**{random_response}**",
-            allowed_mentions=discord.AllowedMentions(users=False),
-        )
+        embed = discord.Embed(colour=16776960) # Yellow colour decimal format
+        embed.set_author(name='Magic 8-ball', icon_url=icon_url)
+        embed.add_field(name=f'*{ctx.author.name}, My ball says:*', value=f'**{fortune}**')
+        await ctx.send(embed=embed)
 
     @cog_ext.cog_slash(
         name="8ball",
